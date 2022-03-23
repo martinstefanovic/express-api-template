@@ -1,0 +1,13 @@
+{
+  "name": "NodeJS Template",
+  "version": "1.0.0",
+  "description": "Template for NodeJS & Express projects",
+  "apidoc": {
+    "title": "NodeJS Template",
+    "url" : "http://localhost:3000/"
+  },
+  "header":{
+    "title": "About template",
+    "filename": "header.md"
+  }
+}
