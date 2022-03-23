@@ -40,7 +40,15 @@ exports.create = catchAsync(async (req, res, next) => {
 });
 
 exports.list = catchAsync(async (req, res, next) => {
-  // const filter = pick(req.query, ['search','email','role']);
+  /**
+   * If you want to extract filter parameters from req:
+   * const filter = pick(req.query, ['email','role']);
+   * This will generate object
+   * {
+   *  email: 'john...',
+   *  role: 'admin'
+   * }
+   */
 
   const filter = req.query?.search
     ? {

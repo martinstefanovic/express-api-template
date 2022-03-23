@@ -45,7 +45,7 @@ const {
  *
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  */
-router.route('/register').post(controller.register);
+router.route('/register').post(validate(register, {}, {}), controller.register);
 /**
  * @api {post} v1/auth/login Login
  * @apiDescription Get an accessToken

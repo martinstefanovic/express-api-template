@@ -21,23 +21,11 @@ module.exports = compressImages = (path) => {
       .split('.')
       .slice(0, -1)
       .join('.')}-${timestamp}.webp`;
-    // const ref2 = `${originalname
-    //   .split('.')
-    //   .slice(0, -1)
-    //   .join('.')}-${timestamp}-200x200.webp`;
     req.file.path = `uploads/${path}/${ref}`;
     await sharp(buffer)
       .toFormat('webp')
       .webp({ quality: quality })
       .toFile(`./uploads/${path}/${ref}`);
-
-    // await sharp(buffer)
-    //   .toFormat('webp')
-    //   .resize(200, 200, {
-    //     fit: 'inside',
-    //   })
-    //   .webp({ quality: 90 })
-    //   .toFile(`./uploads/${path}/${ref2}`);
 
     next();
   };

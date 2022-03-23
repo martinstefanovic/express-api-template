@@ -16,10 +16,6 @@ const paginate = () => {
       sort = 'createdAt';
     }
 
-    const limit =
-      options.limit && parseInt(options.limit, 10) > 0
-        ? parseInt(options.limit, 10)
-        : 10;
     const page = parseInt(options.page) || 1;
     // const skip = (page - 1) * limit;
     const perPage = parseInt(options.perPage) || 10;
