@@ -4,6 +4,10 @@
 
 Boilerplate/Generator/Starter Project for building RESTful APIs and microservices using Node.js, Express and MongoDB
 
+## API Documentation
+
+You can view [api documentation here](https://martinstefanovic.github.io/express-api-template/) or view how to generate docs below in "Getting started" section.
+
 ## Change log
 
 Changelog is located in root folder in file CHANGELOG.md
