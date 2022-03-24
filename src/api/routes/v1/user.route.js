@@ -1,13 +1,12 @@
-/* ====================================
-*                IMPORTS
-======================================= */
-
+/**
+ * * Imports
+ */
 const { validate } = require('express-validation');
 const express = require('express');
 const multer = require('multer');
 
 /**
- * Custom imports
+ * * Custom imports
  */
 const controller = require('../../controllers/user.controller');
 const { authorize, ADMIN, LOGGED_USER } = require('../../middlewares/auth');
@@ -19,10 +18,9 @@ const {
   updateUser,
 } = require('../../validations/user.validation');
 
-/* ====================================
-*                HELPERS
-======================================= */
-
+/**
+ * * Helpers
+ */
 const router = express.Router();
 
 const handleImageUpload = [
@@ -31,9 +29,9 @@ const handleImageUpload = [
   parseJson,
 ];
 
-/* ====================================
-*                ROUTES
-======================================= */
+/**
+ * * Routes
+ */
 
 /**
  * Load user when API with userId route parameter is hit

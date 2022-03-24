@@ -1,7 +1,13 @@
+/**
+ * * Imports
+ */
 const express = require('express');
-const router = express.Router();
-const controller = require('../../controllers/auth.controller');
 const { validate } = require('express-validation');
+
+/**
+ * * Custom imports
+ */
+const controller = require('../../controllers/auth.controller');
 const {
   login,
   register,
@@ -10,6 +16,15 @@ const {
   sendPasswordReset,
   passwordReset,
 } = require('../../validations/auth.validation');
+
+/**
+ * * Helpers
+ */
+const router = express.Router();
+
+/**
+ * * Routes
+ */
 
 /**
  * @api {post} v1/auth/register Register
@@ -86,10 +101,42 @@ router
   .route('/refresh-token')
   .post(validate(refresh, {}, {}), controller.refresh);
 /**
- * Reset password
+ * @api {post} v1/auth/send-password-reset Send req to reset pass
+ * @apiDescription Send request to reset password
+ * @apiVersion 1.0.0
+ * @apiName SendResetPassword
+ * @apiGroup Auth
+ * @apiPermission public
+ *
+ * @apiBody  {String}  email   User's email
+ *
+ * @apiSuccess {String} Success 'Success'
+ *
+ * @apiError (Bad Request 400)   ValidationError  Some parameters may contain invalid values
+ * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
  */
 router
   .route('/send-password-reset')
-  .post(validate(sendPasswordReset), controller.sendPasswordReset);
+  .post(validate(sendPasswordReset, {}, {}), controller.sendPasswordReset);
+/**
+ * @api {post} v1/auth/reset-password Reset password
+ * @apiDescription Reset password
+ * @apiVersion 1.0.0
+ * @apiName ResetPassword
+ * @apiGroup Auth
+ * @apiPermission public
+ *
+ * @apiBody  {String}  email        User's email
+ * @apiBody  {String}  password     User's new passowrd
+ * @apiBody  {String}  resetToken   Reset token
+ *
+ * @apiSuccess {String} Success 'Password Updated'
+ *
+ * @apiError (Bad Request 400)   ValidationError  Some parameters may contain invalid values
+ * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
+ */
+router
+  .route('/reset-password')
+  .post(validate(passwordReset, {}, {}), controller.resetPassword);
 
 module.exports = router;

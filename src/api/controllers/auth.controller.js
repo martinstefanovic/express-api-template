@@ -7,6 +7,8 @@ const PasswordResetToken = require('../models/passwordResetToken.model');
 const { jwtExpirationInterval } = require('../../config/vars');
 const APIError = require('../errors/api-error');
 const emailProvider = require('../services/emails/emailProvider');
+const authService = require('../services/auth.service');
+const catchAsync = require('../utils/catchAsync');
 
 /**
  * Returns a formated object with tokens
@@ -28,65 +30,48 @@ function generateTokenResponse(user, accessToken) {
  * Returns jwt token if registration was successful
  * @public
  */
-exports.register = async (req, res, next) => {
+exports.register = catchAsync(async (req, res, next) => {
   try {
-    const userData = omit(req.body, 'role');
-    const user = await new User(userData).save();
-    const userTransformed = user.transform();
-    const token = generateTokenResponse(user, user.token());
-    res.status(httpStatus.CREATED);
-
-    return res.json({ token, user: userTransformed });
+    const data = await authService.register(req.body);
+    res
+      .status(httpStatus.CREATED)
+      .json({ token: data.token, user: data.userTransformed });
   } catch (error) {
     return next(User.checkDuplicateEmail(error));
   }
-};
+});
 
 /**
  * Returns jwt token if valid username and password is provided
  * @public
  */
-exports.login = async (req, res, next) => {
+exports.login = catchAsync(async (req, res, next) => {
   try {
-    const { user, accessToken } = await User.findAndGenerateToken(req.body);
-    const token = generateTokenResponse(user, accessToken);
-    const userTransformed = user.transform();
-    return res.json({ token, user: userTransformed });
+    const data = await authService.login(req.body);
+    return res.json({ token: data.token, user: data.userTransformed });
   } catch (error) {
     return next(error);
   }
-};
+});
 
 /**
  * Returns a new jwt when given a valid refresh token
  * @public
  */
-exports.refresh = async (req, res, next) => {
+exports.refresh = catchAsync(async (req, res, next) => {
   try {
-    const { email, refreshToken } = req.body;
-    const refreshObject = await RefreshToken.findOneAndRemove({
-      userEmail: email,
-      token: refreshToken,
-    });
-    const { user, accessToken } = await User.findAndGenerateToken({
-      email,
-      refreshObject,
-    });
-    const response = generateTokenResponse(user, accessToken);
-    return res.json(response);
+    const data = await authService.refresh(req.body);
+    return res.json(data);
   } catch (error) {
     return next(error);
   }
-};
+});
 
-exports.sendPasswordReset = async (req, res, next) => {
+exports.sendPasswordReset = catchAsync(async (req, res, next) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email }).exec();
+    const isMailSent = await authService.sendPasswordReset(req.body);
 
-    if (user) {
-      const passwordResetObj = await PasswordResetToken.generate(user);
-      emailProvider.sendPasswordReset(passwordResetObj);
+    if (isMailSent) {
       res.status(httpStatus.OK);
       return res.json('success');
     }
@@ -97,39 +82,15 @@ exports.sendPasswordReset = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-};
+});
 
-exports.resetPassword = async (req, res, next) => {
+exports.resetPassword = catchAsync(async (req, res, next) => {
   try {
-    const { email, password, resetToken } = req.body;
-    const resetTokenObject = await PasswordResetToken.findOneAndRemove({
-      userEmail: email,
-      resetToken,
-    });
-
-    const err = {
-      status: httpStatus.UNAUTHORIZED,
-      isPublic: true,
-    };
-    if (!resetTokenObject) {
-      err.message = 'Cannot find matching reset token';
-      throw new APIError(err);
+    const isPasswordReseted = await authService.resetPassword(req.body);
+    if (isPasswordReseted) {
+      res.status(httpStatus.OK).json('Password Updated');
     }
-    if (moment().isAfter(resetTokenObject.expires)) {
-      err.message = 'Reset token is expired';
-      throw new APIError(err);
-    }
-
-    const user = await User.findOne({
-      email: resetTokenObject.userEmail,
-    }).exec();
-    user.password = password;
-    await user.save();
-    emailProvider.sendPasswordChangeEmail(user);
-
-    res.status(httpStatus.OK);
-    return res.json('Password Updated');
   } catch (error) {
     return next(error);
   }
-};
+});
